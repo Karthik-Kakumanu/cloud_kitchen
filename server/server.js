@@ -2,14 +2,14 @@ const express = require('express');
 const cors = require('cors');
 const mysql = require('mysql2');
 const dotenv = require('dotenv');
-const path = require('path'); // ✅ Added for frontend
+const path = require('path');
 
 const authRoutes = require('./routes/auth');
 const userRoutes = require('./routes/users');
 const menuRoutes = require('./routes/menu');
-const orderRoutes = require('./routes/orders'); // ✅ Added orders route
+const orderRoutes = require('./routes/orders');
 
-dotenv.config(); // ✅ Load .env variables
+dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -23,7 +23,8 @@ const db = mysql.createConnection({
     host: process.env.DB_HOST,
     user: process.env.DB_USER,
     password: process.env.DB_PASSWORD,
-    database: process.env.DB_NAME
+    database: process.env.DB_NAME,
+    port: process.env.DB_PORT || 3306
 });
 
 db.connect((err) => {
@@ -34,24 +35,19 @@ db.connect((err) => {
     console.log('✅ MySQL Connected!');
 });
 
-// Make db accessible to all routes
+// Make db accessible in all routes
 app.use((req, res, next) => {
     req.db = db;
     next();
 });
 
-// Serve static frontend files (checkout.html, login.html, etc.)
-app.use(express.static(path.join(__dirname, 'public'))); // ✅ ADDED
-
 // API Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/menu', menuRoutes);
-app.use('/api/orders', orderRoutes); // ✅ Orders routes here
+app.use('/api/orders', orderRoutes);
 
-// ✅✅✅ CART API START ✅✅✅
-
-// Add item to cart
+// ✅ CART API
 app.post('/api/cart/add', (req, res) => {
     const { userId, itemName, quantity } = req.body;
 
@@ -60,7 +56,7 @@ app.post('/api/cart/add', (req, res) => {
     }
 
     const sql = 'INSERT INTO cart (user_id, item_name, quantity) VALUES (?, ?, ?)';
-    db.query(sql, [userId, itemName, quantity || 1], (err, result) => {
+    db.query(sql, [userId, itemName, quantity || 1], (err) => {
         if (err) {
             console.error('Error adding item to cart:', err);
             return res.status(500).json({ error: 'Error adding item to cart' });
@@ -69,10 +65,8 @@ app.post('/api/cart/add', (req, res) => {
     });
 });
 
-// Get all cart items for a user
 app.get('/api/cart/:userId', (req, res) => {
     const { userId } = req.params;
-
     const sql = 'SELECT * FROM cart WHERE user_id = ?';
     db.query(sql, [userId], (err, results) => {
         if (err) {
@@ -83,16 +77,14 @@ app.get('/api/cart/:userId', (req, res) => {
     });
 });
 
-// Update quantity of an item in cart
 app.put('/api/cart/update', (req, res) => {
     const { cartId, quantity } = req.body;
-
     if (!cartId || quantity == null) {
         return res.status(400).json({ error: 'Missing required fields' });
     }
 
     const sql = 'UPDATE cart SET quantity = ? WHERE id = ?';
-    db.query(sql, [quantity, cartId], (err, result) => {
+    db.query(sql, [quantity, cartId], (err) => {
         if (err) {
             console.error('Error updating cart:', err);
             return res.status(500).json({ error: 'Error updating cart' });
@@ -101,12 +93,11 @@ app.put('/api/cart/update', (req, res) => {
     });
 });
 
-// Remove an item from cart
 app.delete('/api/cart/remove/:cartId', (req, res) => {
     const { cartId } = req.params;
 
     const sql = 'DELETE FROM cart WHERE id = ?';
-    db.query(sql, [cartId], (err, result) => {
+    db.query(sql, [cartId], (err) => {
         if (err) {
             console.error('Error deleting cart item:', err);
             return res.status(500).json({ error: 'Error deleting cart item' });
@@ -115,11 +106,9 @@ app.delete('/api/cart/remove/:cartId', (req, res) => {
     });
 });
 
-// ✅✅✅ CART API END ✅✅✅
-
-// Test route
-app.get('/', (req, res) => {
-    res.send('✅ Delicios Server Running!');
+// Root test route
+app.get('/api', (req, res) => {
+    res.send('✅ Delicios API running!');
 });
 
 // Global error handler
@@ -128,16 +117,15 @@ app.use((err, req, res, next) => {
     res.status(500).json({ message: 'Something went wrong!' });
 });
 
+// Serve static frontend
+app.use(express.static(path.join(__dirname, '../client')));
+
+// Fallback for SPA (e.g., React Router)
+app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, '../client/intro.html'));
+});
+
 // Start server
 app.listen(PORT, () => {
     console.log(`🚀 Server running at http://localhost:${PORT}`);
-});
-const path = require('path');
-
-// Serve static frontend files
-app.use(express.static(path.join(__dirname, '../client')));
-
-// For SPA fallback (if using React Router)
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, '../client/intro.html'));
 });
