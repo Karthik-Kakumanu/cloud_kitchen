@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Order Confirmation | Delicos</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background-color: #FFF8F5;
+    }
+    
+    .confirmation-card {
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 10px 30px rgba(255, 87, 34, 0.1);
+      transform: translateY(0);
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    
+    .confirmation-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 15px 35px rgba(255, 87, 34, 0.15);
+    }
+    
+    .order-status {
+      position: relative;
+      padding-left: 30px;
+    }
+    
+    .status-step {
+      position: relative;
+      padding-bottom: 30px;
+    }
+    
+    .status-step:last-child {
+      padding-bottom: 0;
+    }
+    
+    .status-step::before {
+      content: '';
+      position: absolute;
+      left: -22px;
+      top: 5px;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: #E0E0E0;
+      z-index: 2;
+    }
+    
+    .status-step.active::before {
+      background: #4CAF50;
+      box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.2);
+    }
+    
+    .status-step.completed::before {
+      background: #4CAF50;
+    }
+    
+    .status-step::after {
+      content: '';
+      position: absolute;
+      left: -17px;
+      top: 5px;
+      width: 2px;
+      height: 100%;
+      background: #E0E0E0;
+    }
+    
+    .status-step:last-child::after {
+      display: none;
+    }
+    
+    .status-step.completed::after {
+      background: #4CAF50;
+    }
+    
+    .delivery-man {
+      animation: float 3s ease-in-out infinite;
+    }
+    
+    @keyframes float {
+      0% { transform: translateY(0px); }
+      50% { transform: translateY(-10px); }
+      100% { transform: translateY(0px); }
+    }
+    
+    .order-item {
+      transition: all 0.3s ease;
+    }
+    
+    .order-item:hover {
+      transform: translateX(5px);
+    }
+    
+    .food-thumbnail {
+      width: 60px;
+      height: 60px;
+      object-fit: cover;
+      border-radius: 12px;
+      border: 2px solid white;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    
+    .track-order-btn {
+      background: linear-gradient(135deg, #FF5722, #FF9800);
+      transition: all 0.3s;
+      letter-spacing: 0.5px;
+      font-weight: 700;
+    }
+    
+    .track-order-btn:hover {
+      background: linear-gradient(135deg, #E64A19, #F57C00);
+      transform: translateY(-3px);
+      box-shadow: 0 10px 20px rgba(255, 87, 34, 0.3);
+    }
+    
+    .back-to-menu-btn {
+      transition: all 0.3s;
+      border: 2px solid #FF5722;
+    }
+    
+    .back-to-menu-btn:hover {
+      background: #FF5722;
+      color: white;
+    }
+  </style>
+</head>
+
+<body class="min-h-screen">
+  <div class="container mx-auto px-4 py-12 max-w-4xl">
+    <!-- Order Confirmation Card -->
+    <div class="confirmation-card p-8 mb-10 text-center">
+      <div class="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+        </svg>
+      </div>
+      <h1 class="text-3xl font-bold text-gray-800 mb-2 font-playfair">Order Confirmed!</h1>
+      <p class="text-gray-600 mb-6">Thank you for your order. We've received it and are preparing your food.</p>
+      
+      <div class="bg-orange-50 border border-orange-100 rounded-lg p-4 inline-block">
+        <div class="flex items-center justify-center space-x-2">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-orange-500" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd" />
+          </svg>
+          <span class="font-medium text-orange-600">Estimated delivery: <span id="delivery-time">30-40 minutes</span></span>
+        </div>
+      </div>
+    </div>
+    
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
+      <!-- Order Summary -->
+      <div class="bg-white p-6 rounded-xl shadow-sm col-span-2">
+        <h2 class="text-xl font-bold text-gray-800 mb-4 font-playfair">Your Order</h2>
+        
+        <div id="order-items-container" class="space-y-4 mb-6">
+          <!-- Order items will be inserted here dynamically -->
+        </div>
+        
+        <div class="border-t border-gray-200 pt-4 space-y-2">
+          <div class="flex justify-between">
+            <span class="text-gray-600">Subtotal</span>
+            <span class="font-medium" id="order-subtotal">₹0.00</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-gray-600">Tax (5%)</span>
+            <span class="font-medium" id="order-tax">₹0.00</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-gray-600">Delivery Fee</span>
+            <span class="font-medium" id="order-delivery">₹40.00</span>
+          </div>
+          <div class="flex justify-between pt-2">
+            <span class="font-bold text-lg">Total</span>
+            <span class="font-bold text-lg" id="order-total">₹0.00</span>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Order Tracking -->
+      <div class="bg-white p-6 rounded-xl shadow-sm">
+        <h2 class="text-xl font-bold text-gray-800 mb-6 font-playfair">Order Status</h2>
+        
+        <div class="order-status">
+          <div class="status-step active">
+            <h3 class="font-medium text-gray-800">Order Confirmed</h3>
+            <p class="text-sm text-gray-500">We've received your order</p>
+          </div>
+          
+          <div class="status-step">
+            <h3 class="font-medium text-gray-800">Preparing Food</h3>
+            <p class="text-sm text-gray-500">Our chef is working on it</p>
+          </div>
+          
+          <div class="status-step">
+            <h3 class="font-medium text-gray-800">On the Way</h3>
+            <p class="text-sm text-gray-500">Delivery partner has picked up</p>
+          </div>
+          
+          <div class="status-step">
+            <h3 class="font-medium text-gray-800">Delivered</h3>
+            <p class="text-sm text-gray-500">Enjoy your meal!</p>
+          </div>
+        </div>
+        
+        <div class="mt-8 text-center">
+          <div class="delivery-man inline-block mb-4">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 text-orange-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z" />
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0" />
+            </svg>
+          </div>
+          <p class="text-sm text-gray-500 mb-4">Your delivery partner will arrive soon</p>
+          <button class="track-order-btn text-white px-6 py-3 rounded-lg text-sm font-semibold w-full">
+            TRACK ORDER
+          </button>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Delivery Details -->
+    <div class="bg-white p-6 rounded-xl shadow-sm mb-8">
+      <h2 class="text-xl font-bold text-gray-800 mb-4 font-playfair">Delivery Details</h2>
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <h3 class="font-medium text-gray-700 mb-2">Delivery Address</h3>
+          <p id="delivery-address" class="text-gray-600">123 Main Street, Apt 4B<br>New York, NY 10001</p>
+        </div>
+        
+        <div>
+          <h3 class="font-medium text-gray-700 mb-2">Contact Information</h3>
+          <p id="delivery-contact" class="text-gray-600">John Doe<br>+1 (555) 123-4567</p>
+        </div>
+        
+        <div>
+          <h3 class="font-medium text-gray-700 mb-2">Payment Method</h3>
+          <p id="payment-method" class="text-gray-600">Cash on Delivery</p>
+        </div>
+        
+        <div>
+          <h3 class="font-medium text-gray-700 mb-2">Order Number</h3>
+          <p id="order-number" class="text-gray-600">#DEL-<span id="order-id"></span></p>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Action Buttons -->
+    <div class="flex flex-col sm:flex-row justify-center gap-4">
+      <a href="menu.html" class="back-to-menu-btn text-orange-500 px-6 py-3 rounded-lg text-sm font-semibold text-center border">
+        BACK TO MENU
+      </a>
+      <button class="bg-gray-100 text-gray-700 px-6 py-3 rounded-lg text-sm font-semibold hover:bg-gray-200 transition-colors">
+        NEED HELP?
+      </button>
+    </div>
+  </div>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const orderData = JSON.parse(localStorage.getItem('currentOrder'));
+      if (!orderData) {
+        window.location.href = 'menu.html';
+        return;
+      }
+  
+      // Set estimated delivery time
+      document.getElementById('delivery-time').textContent =
+        `${30 + Math.floor(Math.random() * 10)}-${45 + Math.floor(Math.random() * 10)} minutes`;
+  
+      // Display order items
+      const container = document.getElementById('order-items-container');
+      const defaultImage = 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?q=80&w=2080&auto=format&fit=crop';
+  
+      orderData.items.forEach(item => {
+        const div = document.createElement('div');
+        div.className = 'order-item flex justify-between items-center p-4 mb-4 bg-white rounded-lg shadow-md';
+        div.innerHTML = `
+          <div class="flex items-center">
+            <img src="${item.image || defaultImage}" alt="${item.name}" class="w-16 h-16 object-cover rounded-lg mr-4 food-thumbnail" />
+            <div>
+              <h3 class="font-semibold text-lg text-orange-500">${item.name}</h3>
+              <p class="text-gray-600">${item.quantity} × ₹${item.price.toFixed(2)}</p>
+            </div>
+          </div>
+          <span class="font-semibold">₹${(item.price * item.quantity).toFixed(2)}</span>
+        `;
+        container.appendChild(div);
+      });
+  
+      // Get pricing from localStorage
+      const calculated = JSON.parse(localStorage.getItem('calculatedTotals')) || {};
+      const subtotal = parseFloat(calculated.subtotal || 0);
+      const discount = parseFloat(calculated.discount || 0);
+      const tax = parseFloat(calculated.tax || 0);
+      const deliveryFee = parseFloat(calculated.deliveryFee || 0);
+      const total = parseFloat(calculated.total || 0);
+  
+      // Display pricing
+      const subtotalEl = document.getElementById('order-subtotal');
+      subtotalEl.textContent = `₹${subtotal.toFixed(2)}`;
+      if (discount > 0) {
+        subtotalEl.innerHTML += ` <span class="text-green-600 text-sm">(-₹${discount.toFixed(2)} Discount)</span>`;
+      }
+  
+      document.getElementById('order-tax').textContent = `₹${tax.toFixed(2)}`;
+      document.getElementById('order-delivery').textContent = `₹${deliveryFee.toFixed(2)}`;
+      document.getElementById('order-total').textContent = `₹${total.toFixed(2)}`;
+  
+      // Display customer info
+      const customer = orderData.customer;
+      if (customer) {
+        document.getElementById('delivery-address').textContent =
+          `${customer.address || ''}, ${customer.city || ''}, ${customer.pincode || ''}`.trim();
+        document.getElementById('delivery-contact').innerHTML =
+          `${customer.fullName || ''}<br>${customer.phoneNumber || ''}`;
+      }
+  
+      // Display payment method
+      document.getElementById('payment-method').textContent =
+        orderData.payment?.method === 'upi' ? 'UPI Payment' :
+        orderData.payment?.method === 'card' ? 'Credit/Debit Card' :
+        'Cash on Delivery';
+  
+      // Display order ID
+      document.getElementById('order-id').textContent =
+        orderData.orderId || Math.floor(10000 + Math.random() * 90000);
+  
+      // Animate order status
+      function updateOrderStatus() {
+        const steps = document.querySelectorAll('.status-step');
+        let current = 0;
+  
+        const interval = setInterval(() => {
+          if (current > 0) {
+            steps[current - 1].classList.remove('active');
+            steps[current - 1].classList.add('completed');
+          }
+  
+          if (current < steps.length) {
+            steps[current].classList.add('active');
+            current++;
+          } else {
+            clearInterval(interval);
+          }
+        }, 5000);
+      }
+  
+      setTimeout(updateOrderStatus, 2000);
+    });
+  </script>
+  
+</body>
+</html>

@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Add Menu Item - Admin Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      padding: 20px;
+      background: #f9f9f9;
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    form {
+      max-width: 600px;
+      margin: 0 auto 40px auto;
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    input, textarea, select, button {
+      width: 100%;
+      padding: 12px;
+      margin: 10px 0;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+    }
+    button {
+      background: #ff5722;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+      border: none;
+      transition: background 0.3s;
+    }
+    button:hover {
+      background: #e64a19;
+    }
+    .menu-list {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    .menu-item {
+      background: white;
+      padding: 15px;
+      border-radius: 10px;
+      box-shadow: 0 0 5px rgba(0,0,0,0.1);
+      margin-bottom: 15px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .menu-details {
+      flex: 1;
+    }
+    .delete-btn {
+      background: #e53935;
+      border: none;
+      padding: 8px 12px;
+      color: white;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    .delete-btn:hover {
+      background: #d32f2f;
+    }
+  </style>
+</head>
+
+<body>
+
+  <h1>Add New Food Item</h1>
+
+  <form id="menuForm">
+    <input type="text" id="name" placeholder="Dish Name" required>
+    <textarea id="description" placeholder="Description" rows="3" required></textarea>
+    <input type="number" id="price" placeholder="Price ₹" required>
+    <input type="text" id="category" placeholder="Category (e.g., Indian, Italian)" required>
+    <input type="text" id="image" placeholder="Image URL" required>
+
+    <label>
+      <input type="checkbox" id="isVeg">
+      Is Vegetarian?
+    </label>
+
+    <button type="submit">Add Menu Item</button>
+  </form>
+
+  <h1>Menu Items</h1>
+  <div class="menu-list" id="menuList">
+    <!-- Items will be populated here -->
+  </div>
+
+  <script>
+    const menuForm = document.getElementById('menuForm');
+    const menuList = document.getElementById('menuList');
+
+    // Function to load all menu items
+    function loadMenuItems() {
+      fetch('http://localhost:5000/api/menu')
+        .then(response => response.json())
+        .then(data => {
+          menuList.innerHTML = ''; // Clear old list
+          data.forEach(item => {
+            const menuItem = document.createElement('div');
+            menuItem.className = 'menu-item';
+
+            menuItem.innerHTML = `
+              <div class="menu-details">
+                <h3>${item.name} ₹${item.price}</h3>
+                <p>${item.description}</p>
+                <small>Category: ${item.category} | ${item.isVeg ? 'Veg' : 'Non-Veg'}</small>
+              </div>
+              <button class="delete-btn" onclick="deleteMenuItem('${item.id}')">Delete</button>
+            `;
+
+            menuList.appendChild(menuItem);
+          });
+        })
+        .catch(error => {
+          console.error('Error fetching menu items:', error);
+        });
+    }
+
+    // Function to delete a menu item
+    function deleteMenuItem(id) {
+      if (confirm('Are you sure you want to delete this item?')) {
+        fetch(`http://localhost:5000/api/menu/${id}`, {
+          method: 'DELETE'
+        })
+        .then(response => response.json())
+        .then(data => {
+          alert(data.message);
+          loadMenuItems(); // Refresh the list
+        })
+        .catch(error => {
+          console.error('Error deleting item:', error);
+          alert('Error deleting menu item.');
+        });
+      }
+    }
+
+    // Handle form submit
+    menuForm.addEventListener('submit', function(e) {
+      e.preventDefault();
+
+      const menuItem = {
+        name: document.getElementById('name').value,
+        description: document.getElementById('description').value,
+        price: parseInt(document.getElementById('price').value),
+        category: document.getElementById('category').value,
+        image: document.getElementById('image').value,
+        isVeg: document.getElementById('isVeg').checked
+      };
+
+      fetch('http://localhost:5000/api/menu/add', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(menuItem)
+      })
+      .then(response => response.json())
+      .then(data => {
+        alert(data.message);
+        menuForm.reset();
+        loadMenuItems(); // Reload list after adding
+      })
+      .catch(error => {
+        console.error('Error adding menu item:', error);
+        alert('Error adding menu item.');
+      });
+    });
+
+    // Initial load
+    loadMenuItems();
+  </script>
+
+</body>
+</html>

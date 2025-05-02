@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Delicos Cart</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      background:
+        linear-gradient(-45deg, #FFD54F, #FF7043, #FFC107, #FF5722),
+        url('https://images.unsplash.com/photo-1555396273-367ea4eb4db5?q=80&w=1974&auto=format&fit=crop') no-repeat center center/cover;
+      background-size: 400% 400%, cover;
+      background-blend-mode: overlay;
+      animation: gradientBG 15s ease infinite;
+      display: flex;
+      flex-direction: column;
+    }
+
+    @keyframes gradientBG {
+      0% {
+        background-position: 0% 50%, center;
+      }
+      50% {
+        background-position: 100% 50%, center;
+      }
+      100% {
+        background-position: 0% 50%, center;
+      }
+    }
+
+    .cart-item {
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      background: rgba(255, 255, 255, 0.95);
+    }
+
+    .cart-item:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+    }
+
+    .quantity-btn {
+      background-color: #FF5722;
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 30px;
+      height: 30px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.3s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .quantity-btn:hover {
+      background-color: #E64A19;
+    }
+
+    .remove-btn {
+      background-color: #f44336;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      padding: 5px 10px;
+      cursor: pointer;
+      transition: all 0.3s;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .remove-btn:hover {
+      background-color: #d32f2f;
+    }
+
+    .loading-spinner {
+      border: 4px solid rgba(255, 255, 255, 0.3);
+      border-top: 4px solid #FF7043;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .food-img {
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .discount-badge {
+      position: absolute;
+      top: -8px;
+      right: -8px;
+      background: #4CAF50;
+      color: white;
+      border-radius: 50%;
+      width: 25px;
+      height: 25px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.7rem;
+      font-weight: bold;
+    }
+
+    .empty-cart-img {
+      max-width: 150px;
+      margin: 0 auto;
+      opacity: 0.8;
+    }
+
+    .cart-title {
+      text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+      letter-spacing: 0.5px;
+    }
+
+    .cart-subtitle {
+      letter-spacing: 0.5px;
+    }
+  </style>
+</head>
+
+<body class="min-h-screen font-sans">
+  <div class="absolute top-4 left-4 z-50">
+    <a href="menu.html">
+      <button class="bg-white text-orange-500 p-3 rounded-full shadow-lg hover:bg-orange-100 transition-all" aria-label="Back to Menu">
+        <i class="fas fa-arrow-left"></i>
+      </button>
+    </a>
+  </div>
+
+  <div class="w-full text-center py-10 px-4">
+    <h1 class="text-4xl md:text-5xl font-extrabold text-white cart-title mb-2">YOUR ORDER CART</h1>
+    <p class="text-lg md:text-xl font-medium text-orange-100 cart-subtitle">Review your delicious selections</p>
+  </div>
+
+  <div class="flex justify-between items-center p-4 md:p-6 max-w-4xl mx-auto bg-white bg-opacity-20 rounded-xl">
+    <div class="flex items-center space-x-2">
+      <span class="text-white text-lg font-semibold">Items:</span>
+      <span id="cart-item-count" class="bg-orange-500 text-white rounded-full px-3 py-1 font-bold">0</span>
+    </div>
+    <button id="clear-cart-btn" class="bg-red-500 hover:bg-red-600 text-white py-2 px-4 rounded-lg text-sm flex items-center gap-2 transition-all">
+      <i class="fas fa-trash-alt"></i> Clear
+    </button>
+  </div>
+
+  <div class="p-4 md:p-6 max-w-4xl mx-auto">
+    <div class="bg-white bg-opacity-90 rounded-xl shadow-lg p-4 md:p-6 mb-6" id="cart-items-container">
+      <div class="text-center">
+        <div class="loading-spinner mx-auto" id="loading-spinner"></div>
+      </div>
+      <div id="empty-cart-message" class="text-center py-10 hidden">
+        <img src="https://cdn-icons-png.flaticon.com/512/4555/4555971.png" alt="Empty cart" class="empty-cart-img mb-6">
+        <h3 class="text-2xl font-bold text-gray-700 mb-2">Your cart is empty</h3>
+        <p class="text-gray-600 mb-6">Add some delicious items from our menu</p>
+        <a href="menu.html" class="bg-orange-500 hover:bg-orange-600 text-white py-2 px-6 rounded-full inline-flex items-center gap-2 transition-all">
+          <i class="fas fa-utensils"></i> Browse Menu
+        </a>
+      </div>
+    </div>
+
+    <div class="bg-white bg-opacity-90 rounded-xl shadow-lg p-4 md:p-6">
+      <h2 class="text-xl md:text-2xl font-bold text-orange-500 mb-4 flex items-center gap-2">
+        <i class="fas fa-receipt"></i> Order Summary
+      </h2>
+      <div class="flex justify-between mb-2">
+        <span class="text-gray-700">Subtotal:</span>
+        <span class="font-semibold" id="subtotal">₹0.00</span>
+      </div>
+      <div class="flex justify-between mb-2">
+        <span class="text-gray-700">Tax (5%):</span>
+        <span class="font-semibold" id="tax">₹0.00</span>
+      </div>
+      <div class="flex justify-between mb-4">
+        <span class="text-gray-700">Delivery Fee:</span>
+        <span class="font-semibold" id="delivery-fee">₹40.00</span>
+      </div>
+
+      <div class="flex items-center gap-2 mb-4">
+        <div class="flex-1">
+          <input type="text" id="coupon-code" class="w-full border p-2 rounded-lg focus:ring-2 focus:ring-orange-500" placeholder="Enter Coupon Code">
+        </div>
+        <button id="apply-coupon-btn" class="bg-orange-500 hover:bg-orange-600 text-white py-2 px-4 rounded-lg flex items-center gap-2 transition-all">
+          <i class="fas fa-tag"></i> Apply
+        </button>
+      </div>
+
+      <div class="border-t border-gray-300 pt-4 flex justify-between">
+        <span class="text-lg md:text-xl font-bold text-orange-500">Total:</span>
+        <span class="text-lg md:text-xl font-bold" id="total">₹0.00</span>
+      </div>
+      <button id="checkout-btn" class="w-full bg-orange-500 hover:bg-orange-600 text-white py-3 px-4 rounded-full mt-6 text-lg font-semibold transition-all flex items-center justify-center gap-2">
+        <i class="fas fa-lock"></i> Proceed to Checkout
+      </button>
+    </div>
+  </div>
+
+  <div class="mt-8 mb-6 text-center px-4">
+    <p class="text-orange-600 text-sm">100% satisfaction guarantee | Secure checkout</p>
+  </div>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const cartItemsContainer = document.getElementById('cart-items-container');
+      const emptyCartMessage = document.getElementById('empty-cart-message');
+      const subtotalEl = document.getElementById('subtotal');
+      const taxEl = document.getElementById('tax');
+      const totalEl = document.getElementById('total');
+      const deliveryFeeEl = document.getElementById('delivery-fee');
+      const checkoutBtn = document.getElementById('checkout-btn');
+      const clearCartBtn = document.getElementById('clear-cart-btn');
+      const cartItemCountEl = document.getElementById('cart-item-count');
+      const couponCodeInput = document.getElementById('coupon-code');
+      const loadingSpinner = document.getElementById('loading-spinner');
+      const applyCouponBtn = document.getElementById('apply-coupon-btn');
+  
+      let cart = JSON.parse(localStorage.getItem('cart')) || [];
+  
+      const formatPrice = (price) => `₹${price.toFixed(2)}`;
+  
+      const updateTotals = () => {
+        const discountData = JSON.parse(localStorage.getItem('discount')) || null;
+        const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+        
+        let discount = 0;
+        if (discountData && discountData.type === 'percentage') {
+          discount = subtotal * (discountData.value / 100);
+        }
+  
+        const tax = (subtotal - discount) * 0.05;
+        const deliveryFee = 40;
+        const total = subtotal - discount + tax + deliveryFee;
+  
+        subtotalEl.textContent = formatPrice(subtotal);
+        if (discount > 0) {
+          subtotalEl.innerHTML += ` <span class="text-green-600 text-sm">(-₹${discount.toFixed(2)} Discount)</span>`;
+        }
+  
+        taxEl.textContent = formatPrice(tax);
+        deliveryFeeEl.textContent = formatPrice(deliveryFee);
+        totalEl.textContent = formatPrice(total);
+      };
+  
+      const renderCartItems = () => {
+        cartItemsContainer.innerHTML = '';
+        if (cart.length === 0) {
+          emptyCartMessage.classList.remove('hidden');
+          checkoutBtn.disabled = true;
+          checkoutBtn.classList.add('opacity-50');
+          cartItemCountEl.textContent = '0';
+  
+          subtotalEl.textContent = `₹0.00`;
+          taxEl.textContent = `₹0.00`;
+          deliveryFeeEl.textContent = `₹40.00`;
+          totalEl.textContent = `₹40.00`;
+          return;
+        } else {
+          emptyCartMessage.classList.add('hidden');
+          checkoutBtn.disabled = false;
+          checkoutBtn.classList.remove('opacity-50');
+          cartItemCountEl.textContent = cart.length;
+        }
+  
+        cart.forEach((item, index) => {
+          const cartItem = document.createElement('div');
+          cartItem.classList.add('cart-item', 'flex', 'justify-between', 'items-center', 'p-4', 'mb-4', 'bg-white', 'rounded-lg', 'shadow-md');
+          const defaultImage = 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?q=80&w=2080&auto=format&fit=crop';
+  
+          cartItem.innerHTML = `
+            <div class="flex items-center">
+              <img src="${item.image || defaultImage}" alt="${item.name}" class="w-16 h-16 object-cover rounded-lg mr-4" />
+              <div>
+                <h3 class="font-semibold text-lg text-orange-500">${item.name}</h3>
+                <p class="text-gray-600">${formatPrice(item.price)} each</p>
+              </div>
+            </div>
+            <div class="flex items-center">
+              <button class="quantity-btn decrease" data-index="${index}" aria-label="Decrease quantity of ${item.name}" ${item.quantity <= 1 ? 'disabled' : ''}>-</button>
+              <span class="mx-3 font-semibold">${item.quantity}</span>
+              <button class="quantity-btn increase" data-index="${index}" aria-label="Increase quantity of ${item.name}" ${item.quantity >= 10 ? 'disabled' : ''}>+</button>
+              <span class="ml-6 font-semibold w-20 text-right">${formatPrice(item.price * item.quantity)}</span>
+              <button class="remove-btn ml-4" data-index="${index}" aria-label="Remove ${item.name} from cart">Remove</button>
+            </div>
+          `;
+          cartItemsContainer.appendChild(cartItem);
+        });
+  
+        updateTotals();
+      };
+  
+      const updateCart = () => {
+        localStorage.setItem('cart', JSON.stringify(cart));
+        renderCartItems();
+      };
+  
+      const applyCoupon = () => {
+        const couponCode = couponCodeInput.value.trim().toLowerCase();
+        const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+  
+        if (couponCode === 'discount10') {
+          const discount = subtotal * 0.10;
+          localStorage.setItem('discount', JSON.stringify({
+            type: 'percentage',
+            value: 10,
+            amount: discount.toFixed(2),
+            code: 'DISCOUNT10'
+          }));
+  
+          alert('Coupon applied! You get 10% off.');
+          updateTotals();
+        } else {
+          alert('Invalid coupon code.');
+          localStorage.removeItem('discount');
+          updateTotals();
+        }
+      };
+  
+      applyCouponBtn.addEventListener('click', applyCoupon);
+  
+      cartItemsContainer.addEventListener('click', (e) => {
+        if (e.target.classList.contains('decrease')) {
+          const index = e.target.getAttribute('data-index');
+          if (cart[index].quantity > 1) {
+            cart[index].quantity--;
+          } else {
+            cart.splice(index, 1);
+          }
+          updateCart();
+        } else if (e.target.classList.contains('increase')) {
+          const index = e.target.getAttribute('data-index');
+          cart[index].quantity++;
+          updateCart();
+        } else if (e.target.classList.contains('remove-btn')) {
+          const index = e.target.getAttribute('data-index');
+          cart.splice(index, 1);
+          updateCart();
+        }
+      });
+  
+      checkoutBtn.addEventListener('click', () => {
+        if (cart.length === 0) {
+          alert('Your cart is empty!');
+          return;
+        }
+        sessionStorage.setItem('cart', JSON.stringify(cart));
+        window.location.href = 'checkout.html';
+      });
+  
+      clearCartBtn.addEventListener('click', () => {
+        cart = [];
+        localStorage.removeItem('discount');
+        updateCart();
+      });
+  
+      renderCartItems();
+    });
+  </script>
+  
+</body>
+
+</html>

@@ -1,0 +1,771 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Delicios - Cloud Kitchen Signup</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --primary: #FF5722;
+      --secondary: #FFC107;
+      --dark: #222;
+      --light: #fff;
+      --error: #f44336;
+      --success: #4CAF50;
+      --warning: #FF9800;
+    }
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Poppins', Arial, sans-serif;
+    }
+
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      background: 
+        linear-gradient(-45deg, #FFD54F, #FF7043, #FFC107, #FF5722),
+        url('https://images.unsplash.com/photo-1555396273-367ea4eb4db5?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80') no-repeat center center/cover;
+      background-blend-mode: overlay;
+      background-size: 400% 400%, cover;
+      animation: gradientBG 15s ease infinite;
+      padding: 20px;
+    }
+
+    @keyframes gradientBG {
+      0% { background-position: 0% 50%, center; }
+      50% { background-position: 100% 50%, center; }
+      100% { background-position: 0% 50%, center; }
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .signup-container {
+      background: rgba(0, 0, 0, 0.85);
+      padding: 30px;
+      border-radius: 15px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+      color: var(--light);
+      width: 100%;
+      max-width: 400px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      animation: fadeIn 0.6s ease-out;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .signup-container::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: linear-gradient(
+        to bottom right,
+        rgba(255, 255, 255, 0.1),
+        rgba(255, 255, 255, 0)
+      );
+      transform: rotate(30deg);
+      pointer-events: none;
+    }
+
+    .logo {
+      text-align: center;
+      margin-bottom: 25px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--secondary);
+    }
+
+    .logo i {
+      font-size: 32px;
+    }
+
+    .signup-container h2 {
+      margin-bottom: 25px;
+      text-align: center;
+      font-weight: 600;
+      color: var(--light);
+      position: relative;
+    }
+
+    .signup-container h2::after {
+      content: '';
+      position: absolute;
+      bottom: -10px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 60px;
+      height: 3px;
+      background: var(--secondary);
+      border-radius: 3px;
+    }
+
+    .input-group {
+      margin-bottom: 20px;
+      position: relative;
+    }
+
+    .input-group label {
+      display: block;
+      font-size: 14px;
+      margin-bottom: 8px;
+      font-weight: 500;
+      color: rgba(255, 255, 255, 0.8);
+    }
+
+    .input-group input {
+      width: 100%;
+      padding: 12px 15px 12px 40px;
+      border-radius: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      background: rgba(255, 255, 255, 0.1);
+      color: var(--light);
+      font-size: 15px;
+      transition: all 0.3s ease;
+    }
+
+    .input-group input:focus {
+      outline: none;
+      border-color: var(--secondary);
+      box-shadow: 0 0 0 2px rgba(255, 193, 7, 0.2);
+    }
+
+    .input-group i {
+      position: absolute;
+      left: 15px;
+      top: 40px;
+      color: rgba(255, 255, 255, 0.6);
+      font-size: 18px;
+    }
+
+    .password-container {
+      position: relative;
+    }
+
+    .toggle-password {
+      position: absolute;
+      right: 15px;
+      top: 40px;
+      color: rgba(255, 255, 255, 0.6);
+      cursor: pointer;
+      font-size: 18px;
+      transition: all 0.3s ease;
+    }
+
+    .toggle-password:hover {
+      color: var(--secondary);
+    }
+
+    .strength-meter {
+      height: 5px;
+      background: rgba(255, 255, 255, 0.1);
+      margin-top: 10px;
+      border-radius: 5px;
+      overflow: hidden;
+    }
+
+    .strength-meter-fill {
+      height: 100%;
+      width: 0%;
+      transition: width 0.3s ease, background 0.3s ease;
+    }
+
+    .password-requirements {
+      margin-top: 8px;
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.6);
+    }
+
+    .requirement {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      margin-bottom: 3px;
+    }
+
+    .requirement i {
+      font-size: 10px;
+    }
+
+    .requirement.valid {
+      color: var(--success);
+    }
+
+    .options {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin: 15px 0 25px;
+      font-size: 14px;
+    }
+
+    .remember-me {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .remember-me input {
+      accent-color: var(--secondary);
+    }
+
+    .signup-btn {
+      background: var(--secondary);
+      color: var(--dark);
+      border: none;
+      padding: 14px;
+      width: 100%;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 16px;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .signup-btn:hover {
+      background: #ffb300;
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(255, 193, 7, 0.4);
+    }
+
+    .signup-btn:active {
+      transform: translateY(0);
+    }
+
+    .signup-btn:disabled {
+      background: #666;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    .error-message {
+      color: var(--error);
+      font-size: 13px;
+      margin-top: 5px;
+      display: none;
+    }
+
+    .hint-message {
+      color: rgba(255, 255, 255, 0.5);
+      font-size: 12px;
+      margin-top: 5px;
+      display: block;
+    }
+
+    .login-link {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 14px;
+      color: rgba(255, 255, 255, 0.7);
+    }
+
+    .login-link a {
+      color: var(--secondary);
+      text-decoration: none;
+      font-weight: 500;
+      transition: all 0.3s ease;
+    }
+
+    .login-link a:hover {
+      text-decoration: underline;
+    }
+
+    .terms-link {
+      color: var(--secondary);
+      text-decoration: none;
+      transition: all 0.3s ease;
+    }
+
+    .terms-link:hover {
+      text-decoration: underline;
+    }
+
+    /* Real-time kitchen status */
+    .kitchen-status {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: rgba(0, 0, 0, 0.7);
+      color: white;
+      padding: 8px 15px;
+      border-radius: 20px;
+      font-size: 13px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      backdrop-filter: blur(5px);
+    }
+
+    .kitchen-status i {
+      color: #4CAF50;
+    }
+
+    /* Toast notification */
+    .toast {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--secondary);
+      color: var(--dark);
+      padding: 12px 24px;
+      border-radius: 30px;
+      font-weight: 500;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .toast.show {
+      opacity: 1;
+    }
+
+    .toast.error {
+      background: var(--error);
+      color: white;
+    }
+
+    .toast.success {
+      background: var(--success);
+      color: white;
+    }
+
+    /* Responsive design */
+    @media (max-width: 480px) {
+      .signup-container {
+        padding: 25px 20px;
+      }
+      
+      .logo {
+        font-size: 24px;
+      }
+      
+      .input-group input {
+        padding: 12px 15px 12px 35px;
+      }
+      
+      .input-group i {
+        font-size: 16px;
+        left: 12px;
+      }
+      
+      .options {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+      }
+      
+      .kitchen-status {
+        bottom: 10px;
+        right: 10px;
+        font-size: 12px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Real-time kitchen status indicator -->
+  <div class="kitchen-status">
+    <i class="fas fa-fire"></i>
+    <span id="kitchen-active">Kitchen active - </span>
+    <span id="orders-count">12 orders in progress</span>
+  </div>
+
+  <div class="signup-container">
+    <div class="logo">
+      <i class="fas fa-utensils"></i>
+      <span>Delicios</span>
+    </div>
+    
+    <h2>Create Your Account</h2>
+    
+    <form id="signupForm">
+      <div class="input-group">
+        <label for="full-name">Full Name</label>
+        <i class="fas fa-user"></i>
+        <input 
+          type="text" 
+          id="full-name" 
+          placeholder="Enter your full name" 
+          required
+          minlength="3"
+          maxlength="50"
+        >
+        <div class="error-message" id="name-error">Please enter a valid name (3-50 characters)</div>
+        <div class="hint-message">Your name as it should appear on orders</div>
+      </div>
+      
+      <div class="input-group">
+        <label for="phone-number">Phone Number</label>
+        <i class="fas fa-phone"></i>
+        <input 
+          type="tel" 
+          id="phone-number" 
+          placeholder="Enter 10-digit phone number" 
+          required
+          inputmode="numeric"
+          maxlength="10"
+        >
+        <div class="error-message" id="phone-error">Please enter a valid 10-digit phone number</div>
+        <div class="hint-message">We'll use this for order updates</div>
+      </div>
+      
+      <div class="input-group">
+        <label for="password">Password</label>
+        <i class="fas fa-lock"></i>
+        <div class="password-container">
+          <input 
+            type="password" 
+            id="password" 
+            placeholder="Create a password (min 6 characters)" 
+            required
+            minlength="6"
+          >
+          <i class="fas fa-eye toggle-password" id="togglePassword"></i>
+        </div>
+        <div class="strength-meter">
+          <div class="strength-meter-fill" id="strength-meter-fill"></div>
+        </div>
+        <div class="password-requirements" id="password-requirements">
+          <div class="requirement" id="req-length">
+            <i class="fas fa-circle"></i>
+            <span>At least 6 characters</span>
+          </div>
+          <div class="requirement" id="req-number">
+            <i class="fas fa-circle"></i>
+            <span>Contains a number</span>
+          </div>
+          <div class="requirement" id="req-case">
+            <i class="fas fa-circle"></i>
+            <span>Upper & lowercase letters</span>
+          </div>
+        </div>
+        <div class="error-message" id="password-error">Password must be at least 6 characters</div>
+      </div>
+      
+      <div class="input-group">
+        <label for="confirm-password">Confirm Password</label>
+        <i class="fas fa-lock"></i>
+        <div class="password-container">
+          <input 
+            type="password" 
+            id="confirm-password" 
+            placeholder="Re-enter your password" 
+            required
+            minlength="6"
+          >
+          <i class="fas fa-eye toggle-password" id="toggleConfirmPassword"></i>
+        </div>
+        <div class="error-message" id="confirm-error">Passwords do not match</div>
+      </div>
+      
+      <div class="options">
+        <div class="remember-me">
+          <input type="checkbox" id="terms-agree" required>
+          <label for="terms-agree">I agree to the <a href="#" class="terms-link">terms & conditions</a></label>
+        </div>
+      </div>
+      
+      <button type="submit" class="signup-btn" id="signup-btn" disabled>
+        <i class="fas fa-user-plus"></i>
+        <span>Sign Up</span>
+      </button>
+      
+      <div class="login-link">
+        Already have an account? <a href="login.html">Login</a>
+      </div>
+    </form>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    document.getElementById('signupForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+
+    const name = document.getElementById('name').value;
+    const phone = document.getElementById('phone').value;
+    const password = document.getElementById('password').value;
+
+    try {
+        const response = await fetch('http://localhost:5000/api/auth/signup', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name, phone, password })
+        });
+
+        const data = await response.json();
+        alert(data.message);
+
+        if (response.ok) {
+            window.location.href = 'login.html'; // redirect to login after signup
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Signup failed. Try again.');
+    }
+});
+    // DOM Elements
+    const signupForm = document.getElementById('signupForm');
+    const nameInput = document.getElementById('full-name');
+    const phoneInput = document.getElementById('phone-number');
+    const passwordInput = document.getElementById('password');
+    const confirmInput = document.getElementById('confirm-password');
+    const togglePassword = document.getElementById('togglePassword');
+    const toggleConfirmPassword = document.getElementById('toggleConfirmPassword');
+    const signupBtn = document.getElementById('signup-btn');
+    const nameError = document.getElementById('name-error');
+    const phoneError = document.getElementById('phone-error');
+    const passwordError = document.getElementById('password-error');
+    const confirmError = document.getElementById('confirm-error');
+    const strengthMeter = document.getElementById('strength-meter-fill');
+    const kitchenStatus = document.getElementById('kitchen-active');
+    const ordersCount = document.getElementById('orders-count');
+    const toast = document.getElementById('toast');
+    const termsCheckbox = document.getElementById('terms-agree');
+    
+    // Password requirement elements
+    const reqLength = document.getElementById('req-length');
+    const reqNumber = document.getElementById('req-number');
+    const reqCase = document.getElementById('req-case');
+
+    // Toggle password visibility
+    togglePassword.addEventListener('click', () => {
+      const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+      passwordInput.setAttribute('type', type);
+      togglePassword.classList.toggle('fa-eye');
+      togglePassword.classList.toggle('fa-eye-slash');
+    });
+
+    toggleConfirmPassword.addEventListener('click', () => {
+      const type = confirmInput.getAttribute('type') === 'password' ? 'text' : 'password';
+      confirmInput.setAttribute('type', type);
+      toggleConfirmPassword.classList.toggle('fa-eye');
+      toggleConfirmPassword.classList.toggle('fa-eye-slash');
+    });
+
+    // Phone number validation - allow only numbers
+    phoneInput.addEventListener('input', (e) => {
+      phoneInput.value = phoneInput.value.replace(/\D/g, '');
+      if (phoneInput.value.length > 10) {
+        phoneInput.value = phoneInput.value.slice(0, 10);
+      }
+      validateForm();
+    });
+
+    // Password strength meter and requirements
+    passwordInput.addEventListener('input', () => {
+      const password = passwordInput.value;
+      let strength = 0;
+      
+      // Check requirements
+      const hasMinLength = password.length >= 6;
+      const hasNumber = /\d/.test(password);
+      const hasMixedCase = /[a-z]/.test(password) && /[A-Z]/.test(password);
+      
+      // Update requirement indicators
+      reqLength.classList.toggle('valid', hasMinLength);
+      reqNumber.classList.toggle('valid', hasNumber);
+      reqCase.classList.toggle('valid', hasMixedCase);
+      
+      // Calculate strength (0-100)
+      if (hasMinLength) strength += 30;
+      if (hasNumber) strength += 30;
+      if (hasMixedCase) strength += 40;
+      
+      // Update strength meter
+      strengthMeter.style.width = `${strength}%`;
+      
+      // Set color based on strength
+      if (strength < 40) {
+        strengthMeter.style.background = 'var(--error)';
+      } else if (strength < 70) {
+        strengthMeter.style.background = 'var(--warning)';
+      } else {
+        strengthMeter.style.background = 'var(--success)';
+      }
+      
+      validateForm();
+    });
+
+    // Confirm password validation
+    confirmInput.addEventListener('input', () => {
+      validateForm();
+    });
+
+    // Terms checkbox validation
+    termsCheckbox.addEventListener('change', validateForm);
+
+    // Name validation
+    nameInput.addEventListener('input', () => {
+      validateForm();
+    });
+
+    // Form validation
+    function validateForm() {
+      let isValid = true;
+      
+      // Name validation (3-50 chars)
+      if (nameInput.value.length < 3 || nameInput.value.length > 50) {
+        nameError.style.display = 'block';
+        isValid = false;
+      } else {
+        nameError.style.display = 'none';
+      }
+      
+      // Phone validation (exactly 10 digits)
+      if (!/^\d{10}$/.test(phoneInput.value)) {
+        phoneError.style.display = 'block';
+        isValid = false;
+      } else {
+        phoneError.style.display = 'none';
+      }
+      
+      // Password validation (min 6 chars)
+      if (passwordInput.value.length < 6) {
+        passwordError.style.display = 'block';
+        isValid = false;
+      } else {
+        passwordError.style.display = 'none';
+      }
+      
+      // Confirm password validation
+      if (passwordInput.value !== confirmInput.value) {
+        confirmError.style.display = 'block';
+        isValid = false;
+      } else if (confirmInput.value.length > 0) {
+        confirmError.style.display = 'none';
+      }
+      
+      // Terms checkbox validation
+      if (!termsCheckbox.checked) {
+        isValid = false;
+      }
+      
+      // Enable/disable signup button
+      signupBtn.disabled = !isValid;
+      
+      return isValid;
+    }
+
+    // Show toast notification
+    function showToast(message, type = 'success') {
+      toast.textContent = message;
+      toast.className = 'toast';
+      toast.classList.add(type, 'show');
+      
+      // Add appropriate icon
+      const icon = document.createElement('i');
+      if (type === 'success') {
+        icon.className = 'fas fa-check-circle';
+      } else if (type === 'error') {
+        icon.className = 'fas fa-exclamation-circle';
+      }
+      
+      toast.insertBefore(icon, toast.firstChild);
+      
+      setTimeout(() => {
+        toast.classList.remove('show');
+      }, 3000);
+    }
+
+    // Simulate real-time kitchen status updates
+    function updateKitchenStatus() {
+      const statuses = [
+        "Kitchen active",
+        "Preparing orders",
+        "Chefs cooking",
+        "Meals being prepared"
+      ];
+      const randomStatus = statuses[Math.floor(Math.random() * statuses.length)];
+      
+      kitchenStatus.textContent = randomStatus + " - ";
+      
+      // Random order count between 5-20
+      const orders = Math.floor(Math.random() * 16) + 5;
+      ordersCount.textContent = `${orders} orders in progress`;
+      
+      // Update every 5-10 seconds
+      setTimeout(updateKitchenStatus, Math.random() * 5000 + 5000);
+    }
+
+    // Form submission
+    signupForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      if (!validateForm()) return;
+      
+      // Show loading state
+      signupBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating account...';
+      signupBtn.disabled = true;
+      
+      // Get form values
+      const name = nameInput.value.trim();
+      const phone = phoneInput.value.trim();
+      const password = passwordInput.value;
+      
+      try {
+        const response = await fetch('http://localhost:5000/api/auth/signup', {
+
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, phone, password })
+        });
+        const data = await response.json();
+        
+        if (response.status === 201) {
+          showToast('Account created successfully!', 'success');
+          setTimeout(() => {
+            window.location.href = 'login.html?newuser=true';
+          }, 1500);
+        } else if (response.status === 400) {
+          showToast(data.message || 'Phone number already registered.', 'error');
+          phoneError.textContent = data.message || 'This phone number is already registered';
+          phoneError.style.display = 'block';
+        } else {
+          showToast('Server error. Please try again.', 'error');
+        }
+      } catch (error) {
+        showToast('Error connecting to server.', 'error');
+        console.error('Signup error:', error);
+      } finally {
+        signupBtn.innerHTML = '<i class="fas fa-user-plus"></i><span>Sign Up</span>';
+        signupBtn.disabled = false;
+      }
+    });
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', () => {
+      updateKitchenStatus();
+      
+      // Focus on name field when page loads
+      nameInput.focus();
+    });
+  </script>
+</body>
+</html>
