@@ -103,7 +103,7 @@
 
     // Function to load all menu items
     function loadMenuItems() {
-      fetch('http://localhost:5000/api/menu')
+      fetch('https://cloud-kitchen-bx3t.onrender.com/api/menu')
         .then(response => response.json())
         .then(data => {
           menuList.innerHTML = ''; // Clear old list
@@ -131,7 +131,7 @@
     // Function to delete a menu item
     function deleteMenuItem(id) {
       if (confirm('Are you sure you want to delete this item?')) {
-        fetch(`http://localhost:5000/api/menu/${id}`, {
+        fetch(`https://cloud-kitchen-bx3t.onrender.com/api/menu/${id}`, {
           method: 'DELETE'
         })
         .then(response => response.json())
@@ -159,7 +159,7 @@
         isVeg: document.getElementById('isVeg').checked
       };
 
-      fetch('http://localhost:5000/api/menu/add', {
+      fetch('https://cloud-kitchen-bx3t.onrender.com/api/menu/add', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

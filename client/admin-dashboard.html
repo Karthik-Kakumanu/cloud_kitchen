@@ -196,7 +196,7 @@
     }
 
     window.onload = () => {
-      fetch('http://localhost:5000/api/users')
+      fetch('https://cloud-kitchen-bx3t.onrender.com/api/users')
         .then(response => response.json())
         .then(data => {
           // Update total users
@@ -219,7 +219,7 @@
           console.error('Error fetching users:', error);
         });
           // 🆕 Fetch menu items count
-  fetch('http://localhost:5000/api/menu')
+  fetch('https://cloud-kitchen-bx3t.onrender.com/api/menu')
     .then(response => response.json())
     .then(menuItems => {
       document.getElementById('menuItems').textContent = `${menuItems.length} Active Dishes`;

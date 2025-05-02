@@ -505,31 +505,8 @@
   <div class="toast" id="toast"></div>
 
   <script>
-    document.getElementById('signupForm').addEventListener('submit', async function(e) {
-    e.preventDefault();
-
-    const name = document.getElementById('name').value;
-    const phone = document.getElementById('phone').value;
-    const password = document.getElementById('password').value;
-
-    try {
-        const response = await fetch('http://localhost:5000/api/auth/signup', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ name, phone, password })
-        });
-
-        const data = await response.json();
-        alert(data.message);
-
-        if (response.ok) {
-            window.location.href = 'login.html'; // redirect to login after signup
-        }
-    } catch (error) {
-        console.error('Error:', error);
-        alert('Signup failed. Try again.');
-    }
-});
+    const API_BASE_URL = 'https://cloud-kitchen-bx3t.onrender.com';
+  
     // DOM Elements
     const signupForm = document.getElementById('signupForm');
     const nameInput = document.getElementById('full-name');
@@ -548,12 +525,12 @@
     const ordersCount = document.getElementById('orders-count');
     const toast = document.getElementById('toast');
     const termsCheckbox = document.getElementById('terms-agree');
-    
+  
     // Password requirement elements
     const reqLength = document.getElementById('req-length');
     const reqNumber = document.getElementById('req-number');
     const reqCase = document.getElementById('req-case');
-
+  
     // Toggle password visibility
     togglePassword.addEventListener('click', () => {
       const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
@@ -561,183 +538,121 @@
       togglePassword.classList.toggle('fa-eye');
       togglePassword.classList.toggle('fa-eye-slash');
     });
-
+  
     toggleConfirmPassword.addEventListener('click', () => {
       const type = confirmInput.getAttribute('type') === 'password' ? 'text' : 'password';
       confirmInput.setAttribute('type', type);
       toggleConfirmPassword.classList.toggle('fa-eye');
       toggleConfirmPassword.classList.toggle('fa-eye-slash');
     });
-
-    // Phone number validation - allow only numbers
-    phoneInput.addEventListener('input', (e) => {
+  
+    // Phone input validation
+    phoneInput.addEventListener('input', () => {
       phoneInput.value = phoneInput.value.replace(/\D/g, '');
       if (phoneInput.value.length > 10) {
         phoneInput.value = phoneInput.value.slice(0, 10);
       }
       validateForm();
     });
-
-    // Password strength meter and requirements
+  
+    // Password strength meter
     passwordInput.addEventListener('input', () => {
       const password = passwordInput.value;
       let strength = 0;
-      
-      // Check requirements
+  
       const hasMinLength = password.length >= 6;
       const hasNumber = /\d/.test(password);
       const hasMixedCase = /[a-z]/.test(password) && /[A-Z]/.test(password);
-      
-      // Update requirement indicators
+  
       reqLength.classList.toggle('valid', hasMinLength);
       reqNumber.classList.toggle('valid', hasNumber);
       reqCase.classList.toggle('valid', hasMixedCase);
-      
-      // Calculate strength (0-100)
+  
       if (hasMinLength) strength += 30;
       if (hasNumber) strength += 30;
       if (hasMixedCase) strength += 40;
-      
-      // Update strength meter
+  
       strengthMeter.style.width = `${strength}%`;
-      
-      // Set color based on strength
-      if (strength < 40) {
-        strengthMeter.style.background = 'var(--error)';
-      } else if (strength < 70) {
-        strengthMeter.style.background = 'var(--warning)';
-      } else {
-        strengthMeter.style.background = 'var(--success)';
-      }
-      
+      if (strength < 40) strengthMeter.style.background = 'var(--error)';
+      else if (strength < 70) strengthMeter.style.background = 'var(--warning)';
+      else strengthMeter.style.background = 'var(--success)';
+  
       validateForm();
     });
-
-    // Confirm password validation
-    confirmInput.addEventListener('input', () => {
-      validateForm();
-    });
-
-    // Terms checkbox validation
+  
+    confirmInput.addEventListener('input', validateForm);
     termsCheckbox.addEventListener('change', validateForm);
-
-    // Name validation
-    nameInput.addEventListener('input', () => {
-      validateForm();
-    });
-
-    // Form validation
+    nameInput.addEventListener('input', validateForm);
+  
     function validateForm() {
       let isValid = true;
-      
-      // Name validation (3-50 chars)
+  
       if (nameInput.value.length < 3 || nameInput.value.length > 50) {
         nameError.style.display = 'block';
         isValid = false;
-      } else {
-        nameError.style.display = 'none';
-      }
-      
-      // Phone validation (exactly 10 digits)
+      } else nameError.style.display = 'none';
+  
       if (!/^\d{10}$/.test(phoneInput.value)) {
         phoneError.style.display = 'block';
         isValid = false;
-      } else {
-        phoneError.style.display = 'none';
-      }
-      
-      // Password validation (min 6 chars)
+      } else phoneError.style.display = 'none';
+  
       if (passwordInput.value.length < 6) {
         passwordError.style.display = 'block';
         isValid = false;
-      } else {
-        passwordError.style.display = 'none';
-      }
-      
-      // Confirm password validation
+      } else passwordError.style.display = 'none';
+  
       if (passwordInput.value !== confirmInput.value) {
         confirmError.style.display = 'block';
         isValid = false;
-      } else if (confirmInput.value.length > 0) {
-        confirmError.style.display = 'none';
-      }
-      
-      // Terms checkbox validation
-      if (!termsCheckbox.checked) {
-        isValid = false;
-      }
-      
-      // Enable/disable signup button
+      } else confirmError.style.display = 'none';
+  
+      if (!termsCheckbox.checked) isValid = false;
+  
       signupBtn.disabled = !isValid;
-      
       return isValid;
     }
-
-    // Show toast notification
+  
     function showToast(message, type = 'success') {
       toast.textContent = message;
       toast.className = 'toast';
       toast.classList.add(type, 'show');
-      
-      // Add appropriate icon
+  
       const icon = document.createElement('i');
-      if (type === 'success') {
-        icon.className = 'fas fa-check-circle';
-      } else if (type === 'error') {
-        icon.className = 'fas fa-exclamation-circle';
-      }
-      
+      icon.className = type === 'success' ? 'fas fa-check-circle' : 'fas fa-exclamation-circle';
       toast.insertBefore(icon, toast.firstChild);
-      
-      setTimeout(() => {
-        toast.classList.remove('show');
-      }, 3000);
+  
+      setTimeout(() => toast.classList.remove('show'), 3000);
     }
-
-    // Simulate real-time kitchen status updates
+  
     function updateKitchenStatus() {
-      const statuses = [
-        "Kitchen active",
-        "Preparing orders",
-        "Chefs cooking",
-        "Meals being prepared"
-      ];
+      const statuses = ["Kitchen active", "Preparing orders", "Chefs cooking", "Meals being prepared"];
       const randomStatus = statuses[Math.floor(Math.random() * statuses.length)];
-      
       kitchenStatus.textContent = randomStatus + " - ";
-      
-      // Random order count between 5-20
-      const orders = Math.floor(Math.random() * 16) + 5;
-      ordersCount.textContent = `${orders} orders in progress`;
-      
-      // Update every 5-10 seconds
+      ordersCount.textContent = `${Math.floor(Math.random() * 16) + 5} orders in progress`;
       setTimeout(updateKitchenStatus, Math.random() * 5000 + 5000);
     }
-
-    // Form submission
+  
     signupForm.addEventListener('submit', async (e) => {
       e.preventDefault();
-      
       if (!validateForm()) return;
-      
-      // Show loading state
+  
       signupBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating account...';
       signupBtn.disabled = true;
-      
-      // Get form values
+  
       const name = nameInput.value.trim();
       const phone = phoneInput.value.trim();
       const password = passwordInput.value;
-      
+  
       try {
-        const response = await fetch('http://localhost:5000/api/auth/signup', {
-
+        const response = await fetch(`${API_BASE_URL}/api/auth/signup`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ name, phone, password })
         });
+  
         const data = await response.json();
-        
+  
         if (response.status === 201) {
           showToast('Account created successfully!', 'success');
           setTimeout(() => {
@@ -758,14 +673,12 @@
         signupBtn.disabled = false;
       }
     });
-
-    // Initialize
+  
     document.addEventListener('DOMContentLoaded', () => {
       updateKitchenStatus();
-      
-      // Focus on name field when page loads
       nameInput.focus();
     });
   </script>
+  
 </body>
 </html>
