@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const db = require('../db'); // ✅ Your database connection
-const authenticate = require('../middleware/authMiddleware'); // ✅ Import auth middleware
+const authenticate = require('../middleware/authmiddleware'); // ✅ Import auth middleware
 
 // Create a new order (POST /api/orders)
 router.post('/', authenticate, (req, res) => { // ✅ Protected route
