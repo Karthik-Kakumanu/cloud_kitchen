@@ -40,7 +40,7 @@ app.use((req, res, next) => {
   next();
 });
 
-// Serve static files
+// Serve static frontend files
 app.use(express.static(path.join(__dirname, '../client')));
 
 // API routes
@@ -90,12 +90,12 @@ app.delete('/api/cart/remove/:cartId', (req, res) => {
   });
 });
 
-// Fallback route (for SPA)
-app.get('*', (req, res) => {
+// Fallback route (for non-API frontend requests only)
+app.get(/^\/(?!api).*/, (req, res) => {
   res.sendFile(path.join(__dirname, '../client/intro.html'));
 });
 
-// ✅ ✅ ✅ Only ONE app.listen at the end
+// Start server
 app.listen(PORT, () => {
   console.log(`🚀 Server running on http://localhost:${PORT}`);
 });
