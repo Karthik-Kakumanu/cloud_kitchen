@@ -132,3 +132,12 @@ app.use((err, req, res, next) => {
 app.listen(PORT, () => {
     console.log(`🚀 Server running at http://localhost:${PORT}`);
 });
+const path = require('path');
+
+// Serve static frontend files
+app.use(express.static(path.join(__dirname, '../client')));
+
+// For SPA fallback (if using React Router)
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, '../client/intro.html'));
+});
