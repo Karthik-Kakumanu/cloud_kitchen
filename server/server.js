@@ -92,7 +92,7 @@ app.delete('/api/cart/remove/:cartId', (req, res) => {
 
 // Fallback route (for non-API frontend requests only)
 app.get(/^\/(?!api).*/, (req, res) => {
-  res.sendFile(path.join(__dirname, '../client/intro.html'));
+  res.sendFile(path.join(__dirname, '../client/index.html'));
 });
 
 // Start server
